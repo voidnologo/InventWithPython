@@ -23,19 +23,15 @@ MAX_Y = 14
 def gen_ring(point, distance):
     ring = []
     x1 = MIN_X if point[0] - distance < MIN_X else point[0] - distance
-    x2 = MAX_X if point[0] + distance + 1 > MAX_X else point[0] + distance + 1
-    for x in range(x1, x2):
-        lower_y = point[1] - distance if point[1] - distance > MIN_Y else MIN_Y
-        upper_y = point[1] + distance if point[1] + distance < MAX_Y else MAX_Y
-        ring.append((x, lower_y))
-        ring.append((x, upper_y))
+    x2 = MAX_X if point[0] + distance + 1 > MAX_X else point[0] + distance
     y1 = MIN_Y if point[1] - distance < MIN_Y else point[1] - distance
-    y2 = MAX_Y if point[1] + distance + 1 > MAX_Y else point[1] + distance + 1
+    y2 = MAX_Y if point[1] + distance + 1 > MAX_Y else point[1] + distance
+    for x in range(x1, x2):
+        ring.append((x, y1))
+        ring.append((x, y2))
     for y in range(y1, y2):
-        lower_x = point[0] - distance if point[0] - distance > MIN_X else MIN_X
-        upper_x = point[0] + distance if point[0] + distance < MAX_X else MAX_X
-        ring.append((lower_x, y))
-        ring.append((upper_x, y))
+        ring.append((x1, y))
+        ring.append((x2, y))
     return ring
 
 
