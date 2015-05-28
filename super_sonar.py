@@ -1,8 +1,42 @@
+
 # Sonar
 
 import random
 import sys
 from color import Colorize as c
+
+
+RING_SET = []
+MIN_X = 0
+MAX_X = 59
+MIN_Y = 0
+MAX_Y = 14
+
+
+# def clear_rings(board):
+#     for x in range(MIN_X, MAX_X + 1):
+#         for y in range(MIN_Y, MAX_Y + 1):
+#             board[x][y] = '.'
+#     return board
+
+
+def gen_ring(point, distance):
+    ring = []
+    x1 = MIN_X if point[0] - distance < MIN_X else point[0] - distance
+    x2 = MAX_X if point[0] + distance + 1 > MAX_X else point[0] + distance + 1
+    for x in range(x1, x2):
+        lower_y = point[1] - distance if point[1] - distance > MIN_Y else MIN_Y
+        upper_y = point[1] + distance if point[1] + distance < MAX_Y else MAX_Y
+        ring.append((x, lower_y))
+        ring.append((x, upper_y))
+    y1 = MIN_Y if point[1] - distance < MIN_Y else point[1] - distance
+    y2 = MAX_Y if point[1] + distance + 1 > MAX_Y else point[1] + distance + 1
+    for y in range(y1, y2):
+        lower_x = point[0] - distance if point[0] - distance > MIN_X else MIN_X
+        upper_x = point[0] + distance if point[0] + distance < MAX_X else MAX_X
+        ring.append((lower_x, y))
+        ring.append((upper_x, y))
+    return ring
 
 
 def draw_board(board):
@@ -98,6 +132,11 @@ def make_move(board, chests, x, y):
         return 'You have found a sunken treasure chest!'
     else:
         if smallest_distance < 10:
+            ring = gen_ring((x, y), smallest_distance)
+            RING_SET.extend(ring)
+            for a, b in set(RING_SET):
+                if board[a][b] == '.':
+                    board[a][b] = '{}'.format(c.colorize('BLUE', '.'))
             board[x][y] = '{}'.format(c.colorize('GREEN', smallest_distance))
             return 'Treasure detected at a distance of {} from the sonar device.'.format(smallest_distance)
         else:
@@ -115,7 +154,6 @@ def enter_player_move():
             sys.exit()
 
         move = move.split(',')
-        print(move)
         if len(move) == 2 and move[0].strip().isdigit() and move[1].strip().isdigit() and is_valid_move(int(move[0].strip()), int(move[1].strip())):
             return [int(move[0].strip()), int(move[1].strip())]
         print('Enter a number from 0 to 59, a space, then a number from 0 to 14.')
@@ -209,10 +247,11 @@ while True:
         else:
             if move_result == 'You have found a sunken treasure chest!':
                 # update all the sonar devices currently on the map.
+                RING_SET = []
+                the_board = get_new_board()
                 for x, y in previous_moves:
                     make_move(the_board, the_chests, x, y)
             draw_board(the_board)
-            print(move_result)
 
         if len(the_chests) == 0:
             print('You have found all the sunken treasure chests! Congratulations and good game!')
